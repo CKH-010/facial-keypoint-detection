@@ -15,7 +15,8 @@ env/
 # Data
 data/
 Data/
-dataset/
+dataset/*
+!dataset/data.py
 datasets/
 
 # Build / packaging

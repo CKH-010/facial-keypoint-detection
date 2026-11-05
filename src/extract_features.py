@@ -3,20 +3,14 @@ The comment below are just explanation for each function. For me to easy to unde
 Those comment are human-written by ME!!! please delete it before submission or I will hunt you down!
 """
 
-
 import torch
-from models.naimishnet import NaimishNet
+from PIL import Image
+from torchvision import transforms
 
-def extract_features():
-
-    model = NaimishNet() # load the model
+def extract_features(model, image_input):
     model.eval() # turn the model in evaluation mode
 
-    # creating some dummy imagine
-    # -> 1 is batch size 3 is rgb and 96 x 96 is image size
-    dummy_input = torch.randn(1, 1, 96, 96)
     features = [] # Array that drop the output from the Conv layer
-
 
     """
     Hook function allow us to attach custom functions (hooks) to tensors and modules within your neural network, 
@@ -24,7 +18,6 @@ def extract_features():
     """
     def hook_fn(module, input, output):
         features.append(output) #grap the output and append the feature array
-
 
     for layer in model.modules(): #<----- Bro this is the hook. This cooks our dinner.
         if isinstance(layer, torch.nn.Conv2d): # See the layer is it Conv layer
@@ -44,8 +37,20 @@ def extract_features():
     Well we do have 3 kinds of hooks where it is forward Pre-Hooks, Backward hooks and the one we are using.
     """
 
-    model(dummy_input) # activatae the model using dummy_input
+    # --- NEW LOGIC: Check if it's a file path (string) or a dummy image (tensor) ---
+    if isinstance(image_input, str):
+        # It's a file path, load the real image
+        image = Image.open(image_input).convert('L')
+        transform = transforms.Compose([
+            transforms.Resize((96, 96)),
+            transforms.ToTensor()
+        ])
+        input_tensor = transform(image).unsqueeze(0) # Shape: [1, 1, 96, 96]
+    else:
+        # It's already a tensor (dummy imagine), use it directly
+        # -> 1 is batch size 1 is channel and 96 x 96 is image size
+        input_tensor = image_input
+
+    model(input_tensor) # activatae the model using input_tensor (dummy or real)
 
     return features
-
-

@@ -1,7 +1,5 @@
 import subprocess
 import os
-
-
 def download_udacity_dataset():
     home_dir = os.path.expanduser("~")
     data_dir = os.path.join(home_dir, "facial-keypoint-detection", "data")
@@ -32,4 +30,4 @@ def download_udacity_dataset():
         """
         subprocess.run(["bash", "-c", bash_script], check=True)
 
-    print(f"✅ Dataset downloaded and extracted to {data_dir}")
+    print(f" Dataset downloaded and extracted to {data_dir}")

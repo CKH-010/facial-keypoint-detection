@@ -1,4 +1,5 @@
 import os
+import random
 import torch
 import pandas as pd
 import numpy as np
@@ -9,16 +10,18 @@ from PIL import Image
 class FacialKeypointsDataset(Dataset):
     """Custom Dataset for loading facial keypoints data."""
 
-    def __init__(self, csv_file: str, root_dir: str, transform=None):
+    def __init__(self, csv_file: str, root_dir: str, transform=None, augment=False):
         """
         Args:
             csv_file (str): Path to the CSV file with annotations.
             root_dir (str): Directory with all the images.
             transform (callable, optional): Optional transform to be applied on a sample.
+            augment (bool, optional): Whether to apply data augmentation. Default is False.
         """
         self.keypoints_frame = pd.read_csv(csv_file)
         self.root_dir = root_dir
         self.transform = transform
+        self.augment = augment
 
     def __len__(self):
         return len(self.keypoints_frame)
@@ -39,6 +42,11 @@ class FacialKeypointsDataset(Dataset):
 
         padded_keypoint = np.zeros((90, 2), dtype=np.float32)
         padded_keypoint[:keypoints.shape[0], :] = keypoints
+
+        if self.augment and random.random() < 0.5:
+            arr = arr[ :, ::-1, :]  # Flip the image horizontally
+            padded_keypoint[:, 0] = 1.0 - padded_keypoint[:, 0]  # mirror the x-coordinates of keypoints
+
 
         mask = np.zeros((90,), dtype=np.float32)
         mask[:keypoints.shape[0]] = 1.0

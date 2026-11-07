@@ -1,0 +1,5 @@
+{
+  "layer": "layer4",
+  "shape": [10, 10, 64],
+  "spatial_degradation": true
+}

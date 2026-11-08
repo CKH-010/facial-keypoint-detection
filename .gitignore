@@ -25,3 +25,12 @@ dist/
 *.egg-info/
 .pytest_cache/
 .ipynb_checkpoints/
+target/
+
+# Python
+__pycache__/
+*.pyc
+
+# Rust
+rust_data_pipeline/target/
+rust_data_pipeline/**/*.o

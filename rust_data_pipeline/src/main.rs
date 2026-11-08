@@ -1,16 +1,20 @@
-"""
+/* 
 Technical Summary:
-We built a cross-language pipeline (Python to Rust) to analyze the feature maps extracted from NaimishNet using forward hooks. We applied Welch's T-test to compare the activation distributions of the early layers vs. deep layers.
+We built a cross-language pipeline (Python to Rust) to analyze the feature maps extracted from NaimishNet using forward hooks. 
+We applied Welch's T-test to compare the activation distributions of the early layers vs. deep layers.
 
 The Data:
-
 Early Layer (Layer 1): [1, 32, 93, 93] (High spatial resolution)
-
 Deep Layer (Layer 4): [1, 256, 10, 10] (Severe spatial compression)
-
 T-statistic: -117.52
 
-"""
+It further demonstrates the significant difference in activation distributions between early and deep layers, as indicated by the large negative T-statistic.
+
+** Conclusion: The large negative T-statistic indicates that the early and deep layers have significantly different activation distributions. **
+
+Ps: we are using rust for this is to test the cross-language pipeline and performance of Rust in handling large feature maps.
+
+*/
 
 use ndarray::ArrayD;
 use ndarray_npy::read_npy;

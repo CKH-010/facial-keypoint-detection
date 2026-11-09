@@ -107,7 +107,8 @@ class CoordConv(nn.Module):
 class NaimishNet(nn.Module):
     """Four conv blocks + three FC layers for 96x96 grayscale input.
 
-    The final layer outputs 180 values (90 keypoints x (x, y)).
+    The final layer outputs 180 unconstrained values (90 keypoints x (x, y)),
+    trained against coordinates normalized by the image width and height.
     """
 
     def __init__(self, num_outputs: int = 180, use_bam_and_coord: bool = False):

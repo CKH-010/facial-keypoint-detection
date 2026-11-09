@@ -47,10 +47,13 @@ fn welch_t_statistic(sample_a: &[f32], sample_b: &[f32]) -> Option<f64> {
 
 fn main() {
     let array_layer4: ArrayD<f32> = read_npy("layer4_features.npy").unwrap();
-    println!("Shape: {:?}", array_layer4.shape());
+    println!("Layer 4 Shape: {:?}", array_layer4.shape());
 
     let array_layer1: ArrayD<f32> = read_npy("layer1_features.npy").unwrap();
-    println!("Shape: {:?}", array_layer1.shape());
+    println!("Layer 1 Shape: {:?}", array_layer1.shape());
+
+    println!("Layer 4 Std Dev: {:.6}", array_layer4.std(0.0));  
+    println!("Layer 1 Std Dev: {:.6}", array_layer1.std(0.0));
 
     let flattened_layer4 = array_layer4
         .clone()

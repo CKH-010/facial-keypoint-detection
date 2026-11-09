@@ -4,11 +4,10 @@ import torch
 import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset
-from torchvision import transforms
 from PIL import Image
 
 class FacialKeypointsDataset(Dataset):
-    """Custom Dataset for loading facial keypoints data."""
+    """Load source-image keypoints normalized for 96x96 model inputs."""
 
     def __init__(self, csv_file: str, root_dir: str, transform=None, augment=False):
         """
@@ -34,7 +33,8 @@ class FacialKeypointsDataset(Dataset):
         image = Image.open(img_name).convert('L')  # Convert to grayscale
         keypoints = self.keypoints_frame.iloc[idx, 1:].values.astype('float').reshape(-1, 2)
 
-        keypoints = keypoints / 96.0 #normalize keypoints to [0, 1] range
+        # Resize from the source image to 96x96, then normalize by 96.
+        keypoints = keypoints / np.array(image.size)
 
         arr = np.zeros((1, 96, 96), dtype=np.float32)
         image = image.resize((96, 96))
@@ -44,8 +44,10 @@ class FacialKeypointsDataset(Dataset):
         padded_keypoint[:keypoints.shape[0], :] = keypoints
 
         if self.augment and random.random() < 0.5:
-            arr = arr[ :, ::-1, :]  # Flip the image horizontally
-            padded_keypoint[:, 0] = 1.0 - padded_keypoint[:, 0]  # mirror the x-coordinates of keypoints
+            arr = arr[:, :, ::-1].copy()
+            padded_keypoint[:keypoints.shape[0], 0] = (
+                95.0 / 96.0 - padded_keypoint[:keypoints.shape[0], 0]
+            )
 
 
         mask = np.zeros((90,), dtype=np.float32)

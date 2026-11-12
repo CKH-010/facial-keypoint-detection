@@ -4,9 +4,12 @@ We built a cross-language pipeline (Python to Rust) to analyze the feature maps 
 We applied Welch's T-test to compare the activation distributions of the early layers vs. deep layers.
 
 The Data:
-Early Layer (Layer 1): [1, 32, 93, 93] (High spatial resolution)
-Deep Layer (Layer 4): [1, 256, 10, 10] (Severe spatial compression)
-T-statistic: -117.52
+
+Baseline: L1 SD 0.179 → L4 SD 0.0375 (5× drops), T +56.5 (L4 mean higher than L1). Deep layer collapsed — tiny variance, everything saturates to a similar value.
+Advanced: L1 SD 0.609 → L4 SD 0.255 (only ~2.4× drop, and stays 6.8× larger than baseline's L4), T −59.96 (L4 mean lower than L1). Deep layer stays expressive, distributed, doesn't collapse.
+
+Baseline's deep layer: high mean, tiny spread (collapsed/saturated).
+Advanced's deep layer: lower mean, wide spread (still representing features).
 
 It further demonstrates the significant difference in activation distributions between early and deep layers, as indicated by the large negative T-statistic.
 
@@ -46,10 +49,10 @@ fn welch_t_statistic(sample_a: &[f32], sample_b: &[f32]) -> Option<f64> {
 }
 
 fn main() {
-    let array_layer4: ArrayD<f32> = read_npy("layer4_new.npy").unwrap();
+    let array_layer4: ArrayD<f32> = read_npy("layer4_features.npy").unwrap();
     println!("Layer 4 Shape: {:?}", array_layer4.shape());
 
-    let array_layer1: ArrayD<f32> = read_npy("layer1_new.npy").unwrap();
+    let array_layer1: ArrayD<f32> = read_npy("layer1_features.npy").unwrap();
     println!("Layer 1 Shape: {:?}", array_layer1.shape());
 
     println!("Layer 4 Std Dev: {:.6}", array_layer4.std(0.0));  

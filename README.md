@@ -8,16 +8,13 @@ Both models take a `1 × 96 × 96` grayscale image and return 180 values, interp
 
 The optional BAM + CoordConv variant appends normalized horizontal and vertical coordinate channels to the image, applies the same convolutional backbone, then gates its features with channel and spatial attention before regression. The model implementation is in [`models/naimishnet.py`](models/naimishnet.py).
 
-## Report scope and findings
+## Scope Note
 
-**In scope:** The ablation compares the baseline NaimishNet with the BAM + CoordConv variant. The report-provided MechInterp figures are:
+This report presents an ablation study comparing the baseline NaimishNet against an extended variant incorporating Bottleneck Attention Module (BAM) and CoordConv for facial keypoint detection. In scope is the quantitative comparison of the two architectures, alongside a mechanistic interpretability (MechInterp) analysis of activation statistics at convolutional layers 1 and 4. The MechInterp results are exploratory: baseline layer-4 activations collapse relative to layer 1 (SD 0.0375 vs. 0.1793; Welch T = +56.51), while the BAM+CoordConv variant retains a substantially wider, sign-reversed distribution at layer 4 (SD 0.2549 vs. 0.6091 at layer 1; T = −59.96), suggesting the advanced deep layer remains expressive rather than saturating. These activation summaries describe internal representation behaviour and are not presented as model-quality metrics, as activations are not independent samples.
 
-| Model | Reported Std Dev | Reported T-stat |
-| --- | ---: | ---: |
-| Baseline | `0.037` | `56.50` |
-| Advanced (BAM + CoordConv) | `0.256` | `-61.78` |
+Out of scope are the broader transfer-learning roadmap, which is discussed as future work only and not evaluated; the Raspberry Pi demonstration, which is illustrative and not assessed; and held-out test-set landmark accuracy, for which only qualitative single-image comparisons are provided. No claims of quantitative keypoint-accuracy improvement are made.
 
-The Rust program's Welch calculation compares flattened activations from convolution layers 1 and 4, with the statistic defined as layer 4 minus layer 1; its current `main` reads the advanced `*_new.npy` arrays. The single reported standard deviation appears to refer to layer 4: recomputing from the checked-in baseline activation arrays reproduces `0.037` and `56.50` to the shown precision (layer 4 SD `0.037497`; `t = 56.50695`). For the advanced model, the notebook's extraction cell uses a random dummy input; the checked-in `layer1_new.npy` and `layer4_new.npy` instead give layer 1/4 population SDs `0.609106`/`0.254860` and `t = -59.9602`. These do not exactly reproduce the report-provided advanced figures; another run may explain the difference, but no seed or matching output is recorded. The Rust source comment's `-117.52` also conflicts with the checked-in arrays. Treat these as exploratory activation summaries, not model-quality metrics or significance claims: the activations are not independent samples, and the advanced input is random.
+The reported baseline and advanced statistics above match the checked-in arrays to the shown precision, but they are not a controlled same-input comparison: the baseline arrays were extracted from a named training image, while the advanced arrays were generated from a random dummy input. In the Rust Welch calculation, the T-statistic is computed as layer 4 minus layer 1. Its sign indicates the direction of the difference in means, not that the full activation distribution is sign-reversed; standard deviation describes spread and does not by itself establish that a layer is expressive or saturated. In particular, the “expressive rather than saturating” interpretation is a hypothesis, not a conclusion established by these statistics alone. The Rust source comment's `-117.52` conflicts with the calculation from the checked-in arrays.
 
 ### Feature-map visual comparison
 
@@ -32,8 +29,6 @@ The supplied visualizations show recognizable facial structure in early feature 
 ![BAM + CoordConv feature maps](docs/assets/feature-maps-bam-coordconv.png)
 
 These are qualitative examples, not controlled evidence of model improvement. The notebook's plotting helper normalizes each channel independently for display, so brightness is not comparable across channels or models, and channel positions alone do not establish matching feature identities. The notebook examples also do not use a documented shared input: the baseline extraction uses a named training image, while the advanced extraction cell uses a random dummy input. The pictures cannot establish that BAM + CoordConv caused the visual differences or improved keypoint accuracy; a matched-input comparison and held-out landmark metrics over multiple images would be needed.
-
-**Out of scope:** The broader transfer-learning roadmap is not evaluated. The training notebook does initialize the advanced model with compatible baseline feature weights, but that is only part of this ablation workflow. No held-out test-set evaluation or quantitative landmark-accuracy comparison is implemented.
 
 ## Dataset and coordinates
 

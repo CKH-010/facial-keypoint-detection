@@ -49,24 +49,21 @@ fn welch_t_statistic(sample_a: &[f32], sample_b: &[f32]) -> Option<f64> {
 }
 
 fn main() {
-    let array_layer4: ArrayD<f32> = read_npy("layer4_features.npy").unwrap();
-    println!("Layer 4 Shape: {:?}", array_layer4.shape());
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() != 3 {
+        eprintln!("Usage: cargo run -- <layer1.npy> <layer4.npy>");
+        std::process::exit(1);
+    }
 
-    let array_layer1: ArrayD<f32> = read_npy("layer1_features.npy").unwrap();
-    println!("Layer 1 Shape: {:?}", array_layer1.shape());
+    let layer1: ArrayD<f32> = read_npy(&args[1]).expect("Cannot read layer 1");
+    let layer4: ArrayD<f32> = read_npy(&args[2]).expect("Cannot read layer 4");
 
-    println!("Layer 4 Std Dev: {:.6}", array_layer4.std(0.0));  
-    println!("Layer 1 Std Dev: {:.6}", array_layer1.std(0.0));
+    println!("Layer 1 shape: {:?}, SD: {:.6}", layer1.shape(), layer1.std(0.0));
+    println!("Layer 4 shape: {:?}, SD: {:.6}", layer4.shape(), layer4.std(0.0));
 
-    let flattened_layer4 = array_layer4
-        .clone()
-        .into_shape_with_order(array_layer4.len())
-        .unwrap();
-    let flattened_layer1 = array_layer1
-        .clone()
-        .into_shape_with_order(array_layer1.len())
-        .unwrap();
+    let values1: Vec<f32> = layer1.iter().copied().collect();
+    let values4: Vec<f32> = layer4.iter().copied().collect();
 
-    let t_stat = welch_t_statistic(&flattened_layer4.to_vec(), &flattened_layer1.to_vec());
-    println!("T-statistic: {:?}", t_stat);
+    println!("Layer 4 minus layer 1 T-statistic: {:?}",
+        welch_t_statistic(&values4, &values1));
 }

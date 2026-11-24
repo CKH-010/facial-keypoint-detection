@@ -18,6 +18,9 @@ Data/
 dataset/*
 !dataset/data.py
 datasets/
+*.png
+*.pth
+*.npy
 
 # Build / packaging
 build/

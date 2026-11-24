@@ -2,6 +2,10 @@
 
 A PyTorch project for predicting facial landmarks from grayscale face images. It compares a NaimishNet-style baseline with an experimental BAM + CoordConv variant and includes feature-map analysis.
 
+## Scope
+
+The project compares the baseline and advanced models using test NME and exploratory feature-map analysis. The broader transfer-learning roadmap and Raspberry Pi demonstration are not evaluated.
+
 ## Models
 
 Both models accept a `1 x 96 x 96` grayscale image and output 180 values representing 90 normalized `(x, y)` landmark slots. The baseline uses four convolutional blocks and fully connected regression layers. The advanced variant adds coordinate channels and applies channel and spatial attention to the backbone features. See [`models/naimishnet.py`](models/naimishnet.py).
@@ -64,6 +68,8 @@ The notebook exports layers 1 and 4 to NumPy files. For the recorded example, Ru
 | BAM + CoordConv | 0.100795 | 0.020940 | 27.210 |
 
 These summaries describe activations from one image, not landmark accuracy. Flattened activations are dependent, so the T-statistics alone do not establish statistical significance. The figures do not prove feature collapse or greater expressiveness.
+
+Earlier visualizations are available for the [baseline](docs/assets/feature-maps-baseline.png) and [advanced model](docs/assets/feature-maps-bam-coordconv.png). They are historical examples, not evidence from the current matched-input analysis.
 
 After running the extraction notebook, run the Rust analysis from its directory:
 

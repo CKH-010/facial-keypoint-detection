@@ -80,3 +80,28 @@ cargo run -- advanced_layer1.npy advanced_layer4.npy
 ```
 
 The generated NumPy files are ignored by Git and must be regenerated locally. Reproducing the recorded results also requires the corresponding trained checkpoint files.
+
+## SVD analysis
+
+[`MechInerp_Analysis.ipynb`](MechInerp_Analysis.ipynb) explores how
+approximating the final regression-layer weights affects test NME.
+
+The analysis applies singular value decomposition (SVD) to the first
+136 output rows, corresponding to the 68 valid test landmarks. It
+evaluates retained ranks from 1 to 136 without retraining or changing
+the saved checkpoints. Results are saved in
+[`svd_rank_results.csv`](svd_rank_results.csv).
+
+| Model | Full rank (136) NME | Rank 68 NME |
+| --- | ---: | ---: |
+| Baseline | 2.65% | 3.71% |
+| BAM + CoordConv | 2.28% | 2.43% |
+
+In this run, reducing the rank increased test error for both models.
+This is an exploratory weight intervention, not a demonstration of
+deployed model compression. Rank selection for deployment should use
+validation data rather than the test set.
+
+The notebook also plots the first SVD output direction over an image.
+The arrows are scaled for visualization and do not show actual
+prediction errors or landmark movements.
